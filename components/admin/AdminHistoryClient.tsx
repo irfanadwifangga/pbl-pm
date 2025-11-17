@@ -69,16 +69,14 @@ export function AdminHistoryClient({ bookings }: AdminHistoryClientProps) {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Riwayat Validasi</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Lihat riwayat peminjaman yang telah diproses
-        </p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Riwayat Validasi</h1>
+        <p className="text-gray-600 mt-2">Lihat riwayat peminjaman yang telah diproses</p>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{stats.total}</div>

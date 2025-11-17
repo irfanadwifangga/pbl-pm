@@ -68,16 +68,16 @@ export function WadirHistoryClient({ bookings }: WadirHistoryClientProps) {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Riwayat Persetujuan</h1>
-        <p className="text-muted-foreground">
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Riwayat Persetujuan</h1>
+        <p className="text-gray-600 mt-2">
           Lihat riwayat peminjaman yang telah disetujui atau ditolak
         </p>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{stats.total}</div>

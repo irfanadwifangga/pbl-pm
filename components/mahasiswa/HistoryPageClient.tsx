@@ -59,14 +59,14 @@ export function HistoryPageClient({ bookings }: HistoryPageClientProps) {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Riwayat Peminjaman</h1>
-        <p className="text-muted-foreground">Lihat semua riwayat peminjaman ruangan Anda</p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Riwayat Peminjaman</h1>
+        <p className="text-gray-600 mt-2">Lihat semua riwayat peminjaman ruangan Anda</p>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{stats.total}</div>

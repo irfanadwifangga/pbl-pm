@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
 interface NavItem {
   href: string;
@@ -184,6 +184,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0 bg-slate-900 text-white border-slate-700">
+              <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
               <div className="flex flex-col h-full">
                 <SidebarContent />
               </div>

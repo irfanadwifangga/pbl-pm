@@ -84,7 +84,7 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {defaultRoomId && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-900">

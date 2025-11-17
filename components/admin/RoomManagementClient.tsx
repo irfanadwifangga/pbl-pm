@@ -22,7 +22,7 @@ export function RoomManagementClient({ rooms }: RoomManagementClientProps) {
   const unavailableRooms = rooms.filter((r) => !r.isAvailable);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Kelola Ruangan</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">

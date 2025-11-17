@@ -90,7 +90,7 @@ export function ValidationPageClient({ bookings, availableRooms }: ValidationPag
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Validasi Peminjaman</h1>
         <p className="text-gray-600 mt-2">Review dan validasi pengajuan peminjaman ruangan</p>

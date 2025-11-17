@@ -34,11 +34,11 @@ export default function LoginPage() {
       }
 
       toast.success("Login berhasil!");
-      
+
       // Fetch session to get user role
       const response = await fetch("/api/auth/session");
       const session = await response.json();
-      
+
       // Redirect based on role
       if (session?.user?.role === "STUDENT") {
         router.push("/dashboard/mahasiswa");
@@ -49,7 +49,7 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-      
+
       router.refresh();
     } catch (error) {
       toast.error("Terjadi kesalahan!");
@@ -98,17 +98,19 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-700 mb-2">Demo Akun:</p>
-            <div className="space-y-1 text-sm text-gray-600">
-              <p>• Mahasiswa: mahasiswa@kampus.ac.id</p>
-              <p>• Admin: admin@kampus.ac.id</p>
-              <p>• Wadir III: wadir3@kampus.ac.id</p>
-              <p className="mt-1 text-xs">
-                Password semua: <span className="font-mono">password123</span>
-              </p>
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 mb-2">Demo Akun:</p>
+              <div className="space-y-1 text-sm text-gray-600">
+                <p>• Mahasiswa: mahasiswa@kampus.ac.id</p>
+                <p>• Admin: admin@kampus.ac.id</p>
+                <p>• Wadir III: wadir3@kampus.ac.id</p>
+                <p className="mt-1 text-xs">
+                  Password semua: <span className="font-mono">password123</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -24,8 +24,10 @@ export function RoomManagementClient({ rooms }: RoomManagementClientProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Kelola Ruangan</h1>
-        <p className="text-gray-600 mt-2">Lihat dan kelola semua ruangan kampus</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Kelola Ruangan</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-2">
+          Lihat dan kelola semua ruangan kampus
+        </p>
       </div>
 
       {/* Stats Cards */}
@@ -68,79 +70,81 @@ export function RoomManagementClient({ rooms }: RoomManagementClientProps) {
           <CardDescription>Informasi lengkap semua ruangan</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama Ruangan</TableHead>
-                <TableHead>Lokasi</TableHead>
-                <TableHead>Kapasitas</TableHead>
-                <TableHead>Fasilitas</TableHead>
-                <TableHead>Peminjaman Aktif</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rooms.map((room) => (
-                <TableRow key={room.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-5 h-5 text-blue-600" />
+          <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama Ruangan</TableHead>
+                  <TableHead>Lokasi</TableHead>
+                  <TableHead>Kapasitas</TableHead>
+                  <TableHead>Fasilitas</TableHead>
+                  <TableHead>Peminjaman Aktif</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rooms.map((room) => (
+                  <TableRow key={room.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{room.name}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{room.name}</p>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm">
+                        <MapPin className="w-3 h-3 text-gray-500" />
+                        <span>
+                          {room.building} - Lt. {room.floor}
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <MapPin className="w-3 h-3 text-gray-500" />
-                      <span>
-                        {room.building} - Lt. {room.floor}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4 text-gray-500" />
-                      <span>{room.capacity} orang</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {room.facilities.slice(0, 2).map((facility) => (
-                        <Badge key={facility} variant="outline" className="text-xs">
-                          {facility}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span>{room.capacity} orang</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {room.facilities.slice(0, 2).map((facility) => (
+                          <Badge key={facility} variant="outline" className="text-xs">
+                            {facility}
+                          </Badge>
+                        ))}
+                        {room.facilities.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{room.facilities.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <span>{room.bookings?.length || 0}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {room.isAvailable ? (
+                        <Badge className="bg-green-100 text-green-800 border-green-200">
+                          Tersedia
                         </Badge>
-                      ))}
-                      {room.facilities.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{room.facilities.length - 2}
+                      ) : (
+                        <Badge className="bg-red-100 text-red-800 border-red-200">
+                          Tidak Tersedia
                         </Badge>
                       )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span>{room.bookings?.length || 0}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {room.isAvailable ? (
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Tersedia
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-red-100 text-red-800 border-red-200">
-                        Tidak Tersedia
-                      </Badge>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

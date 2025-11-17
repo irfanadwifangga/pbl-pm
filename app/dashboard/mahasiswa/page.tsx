@@ -99,31 +99,33 @@ export default async function MahasiswaDashboard() {
               </Link>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Ruangan</TableHead>
-                  <TableHead>Acara</TableHead>
-                  <TableHead>Waktu</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bookings.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell className="font-medium">
-                      {booking.room.name}
-                      <div className="text-sm text-gray-500">{booking.room.building}</div>
-                    </TableCell>
-                    <TableCell>{booking.eventName}</TableCell>
-                    <TableCell className="text-sm">{formatDate(booking.startTime)}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={booking.status} />
-                    </TableCell>
+            <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Ruangan</TableHead>
+                    <TableHead>Acara</TableHead>
+                    <TableHead>Waktu</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {bookings.map((booking) => (
+                    <TableRow key={booking.id}>
+                      <TableCell className="font-medium">
+                        {booking.room.name}
+                        <div className="text-sm text-gray-500">{booking.room.building}</div>
+                      </TableCell>
+                      <TableCell>{booking.eventName}</TableCell>
+                      <TableCell className="text-sm">{formatDate(booking.startTime)}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={booking.status} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -188,11 +188,17 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
         {errors.purpose && <p className="text-sm text-red-500">{errors.purpose.message}</p>}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button type="submit" disabled={loading} className="flex-1">
           {loading ? "Memproses..." : "Ajukan Peminjaman"}
         </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={loading}
+          className="sm:w-auto"
+        >
           Batal
         </Button>
       </div>

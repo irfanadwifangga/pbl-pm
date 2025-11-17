@@ -30,10 +30,10 @@ export function TrackingPageClient({ bookings }: TrackingPageClientProps) {
   const { getStatusIcon, getStatusMessage } = useBookingStatus();
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Tracking Peminjaman</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Tracking Peminjaman</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Pantau status peminjaman ruangan Anda secara real-time
         </p>
       </div>

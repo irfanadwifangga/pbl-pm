@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,11 +11,13 @@ import {
   LogOut,
   Building2,
   CheckSquare,
-  Users,
   TrendingUp,
+  Menu,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface NavItem {
   href: string;
@@ -29,6 +32,7 @@ interface SidebarProps {
 
 export function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   const getNavItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
@@ -105,8 +109,8 @@ export function Sidebar({ role, userName }: SidebarProps) {
     return "Wadir III";
   };
 
-  return (
-    <div className="flex flex-col h-full bg-slate-900 text-white w-64">
+  const SidebarContent = () => (
+    <>
       <div className="p-6 border-b border-slate-700">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
@@ -122,18 +126,19 @@ export function Sidebar({ role, userName }: SidebarProps) {
       <div className="p-4 border-b border-slate-700">
         <div className="bg-slate-800 rounded-lg p-3">
           <p className="text-xs text-slate-400 mb-1">Login sebagai</p>
-          <p className="font-medium text-sm">{userName}</p>
+          <p className="font-medium text-sm truncate">{userName}</p>
           <p className="text-xs text-blue-400 mt-1">{getRoleLabel()}</p>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setIsOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                 isActive
@@ -158,6 +163,39 @@ export function Sidebar({ role, userName }: SidebarProps) {
           Keluar
         </Button>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-900 border-b border-slate-700 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="font-bold text-white">Peminjaman Ruangan</h2>
+          </div>
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white">
+                <Menu className="w-6 h-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0 bg-slate-900 text-white border-slate-700">
+              <div className="flex flex-col h-full">
+                <SidebarContent />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:flex flex-col h-full bg-slate-900 text-white w-64">
+        <SidebarContent />
+      </div>
+    </>
   );
 }

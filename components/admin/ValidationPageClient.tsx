@@ -111,89 +111,91 @@ export function ValidationPageClient({ bookings, availableRooms }: ValidationPag
                   <p>Tidak ada peminjaman yang perlu divalidasi</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Mahasiswa</TableHead>
-                      <TableHead>Ruangan</TableHead>
-                      <TableHead>Acara</TableHead>
-                      <TableHead>Tanggal Acara</TableHead>
-                      <TableHead>Waktu</TableHead>
-                      <TableHead>Diajukan</TableHead>
-                      <TableHead>Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {bookings.map((booking) => (
-                      <TableRow key={booking.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{booking.user.fullName}</p>
-                            <p className="text-sm text-gray-500">{booking.user.studentId}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{booking.room.name}</p>
-                            <p className="text-sm text-gray-500">{booking.room.building}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>{booking.eventName}</TableCell>
-                        <TableCell className="text-sm">
-                          {new Date(booking.startTime).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell className="text-sm whitespace-nowrap">
-                          {new Date(booking.startTime).toLocaleTimeString("id-ID", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          -{" "}
-                          {new Date(booking.endTime).toLocaleTimeString("id-ID", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          <div>
-                            <p className="font-medium text-blue-600">
-                              {new Date(booking.createdAt).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                              })}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(booking.createdAt).toLocaleTimeString("id-ID", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedBooking(booking)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            Review
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Mahasiswa</TableHead>
+                        <TableHead>Ruangan</TableHead>
+                        <TableHead>Acara</TableHead>
+                        <TableHead>Tanggal Acara</TableHead>
+                        <TableHead>Waktu</TableHead>
+                        <TableHead>Diajukan</TableHead>
+                        <TableHead>Aksi</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {bookings.map((booking) => (
+                        <TableRow key={booking.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.user.fullName}</p>
+                              <p className="text-sm text-gray-500">{booking.user.studentId}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.room.name}</p>
+                              <p className="text-sm text-gray-500">{booking.room.building}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.eventName}</TableCell>
+                          <TableCell className="text-sm">
+                            {new Date(booking.startTime).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell className="text-sm whitespace-nowrap">
+                            {new Date(booking.startTime).toLocaleTimeString("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                            -{" "}
+                            {new Date(booking.endTime).toLocaleTimeString("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            <div>
+                              <p className="font-medium text-blue-600">
+                                {new Date(booking.createdAt).toLocaleDateString("id-ID", {
+                                  day: "numeric",
+                                  month: "short",
+                                })}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {new Date(booking.createdAt).toLocaleTimeString("id-ID", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setSelectedBooking(booking)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              Review
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
         {/* Detail & Action */}
-        <div>
+        <div className="lg:sticky lg:top-6">
           <Card>
             <CardHeader>
               <CardTitle>Detail Peminjaman</CardTitle>

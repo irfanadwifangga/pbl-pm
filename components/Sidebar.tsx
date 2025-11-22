@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Calendar,
@@ -113,8 +114,14 @@ export function Sidebar({ role, userName }: SidebarProps) {
     <>
       <div className="p-6 border-b border-slate-700">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-            <Building2 className="w-6 h-6" />
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+            <Image
+              src="/logo-polinela.png"
+              alt="Logo Polinela"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
           </div>
           <div>
             <h2 className="font-bold text-lg">Peminjaman</h2>
@@ -172,8 +179,14 @@ export function Sidebar({ role, userName }: SidebarProps) {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-slate-900 border-b border-slate-700 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1">
+              <Image
+                src="/logo-polinela.png"
+                alt="Logo Polinela"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
             <h2 className="font-bold text-white">Peminjaman Ruangan</h2>
           </div>

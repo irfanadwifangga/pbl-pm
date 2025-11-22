@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useBookingStatus } from "@/hooks/useBookingStatus";
+import { MemoDownloadButton } from "./MemoDownloadButton";
 
 interface TrackingPageClientProps {
   bookings: BookingWithRelations[];
@@ -258,23 +259,19 @@ export function TrackingPageClient({ bookings }: TrackingPageClientProps) {
                   )}
 
                   {/* Memo Download (if approved) */}
-                  {selectedBooking.status === "APPROVED" &&
-                    selectedBooking.memos &&
-                    selectedBooking.memos.length > 0 && (
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <Label className="text-green-800 font-semibold flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Memo Tersedia
-                        </Label>
-                        <p className="text-sm mt-1 text-green-900">
-                          Nomor: {selectedBooking.memos[0].memoNumber}
-                        </p>
-                        <Button size="sm" className="mt-2 w-full">
-                          <Download className="h-4 w-4 mr-2" />
-                          Unduh Memo
-                        </Button>
-                      </div>
-                    )}
+                  {selectedBooking.status === "APPROVED" && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <Label className="text-green-800 font-semibold flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Peminjaman Disetujui
+                      </Label>
+                      <p className="text-sm mt-1 mb-2 text-green-900">
+                        Peminjaman Anda telah disetujui. Unduh memo untuk diserahkan kepada pihak
+                        terkait.
+                      </p>
+                      <MemoDownloadButton bookingId={selectedBooking.id} />
+                    </div>
+                  )}
 
                   {/* Event Details */}
                   <div>

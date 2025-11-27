@@ -1,39 +1,75 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { BookingService } from "@/lib/services/booking.service";
 import { bookingSchema } from "@/lib/validations/booking";
+import { ERROR_MESSAGES, HTTP_STATUS } from "@/lib/constants/common";
 import { z } from "zod";
+import {
+  getApiRateLimiter,
+  getWriteRateLimiter,
+  rateLimit,
+  getRateLimitIdentifier,
+} from "@/lib/middleware/rateLimit";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: ERROR_MESSAGES.UNAUTHORIZED },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
+
+    // Rate limiting
+    const rateLimitResponse = await rateLimit(
+      request,
+      getApiRateLimiter(),
+      getRateLimitIdentifier(request, session.user.id)
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as any;
     const userId = searchParams.get("userId");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
-    const bookings = await BookingService.getBookings({
+    const result = await BookingService.getBookings({
       userId: userId || session.user.id,
       status,
       role: session.user.role,
+      page,
+      limit,
     });
 
-    return NextResponse.json(bookings);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching bookings:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    );
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "STUDENT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: ERROR_MESSAGES.UNAUTHORIZED },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
+
+    // Rate limiting for write operations
+    const rateLimitResponse = await rateLimit(
+      request,
+      getWriteRateLimiter(),
+      getRateLimitIdentifier(request, session.user.id)
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     const body = await request.json();
     const validatedData = bookingSchema.parse(body);
@@ -44,8 +80,8 @@ export async function POST(request: Request) {
     // Validate time
     if (startTime >= endTime) {
       return NextResponse.json(
-        { error: "Waktu selesai harus lebih besar dari waktu mulai" },
-        { status: 400 }
+        { error: ERROR_MESSAGES.INVALID_TIME },
+        { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
 
@@ -58,8 +94,8 @@ export async function POST(request: Request) {
 
     if (!isAvailable) {
       return NextResponse.json(
-        { error: "Ruangan sudah dibooking pada waktu tersebut" },
-        { status: 400 }
+        { error: ERROR_MESSAGES.ROOM_UNAVAILABLE },
+        { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
 
@@ -74,12 +110,15 @@ export async function POST(request: Request) {
       purpose: validatedData.purpose,
     });
 
-    return NextResponse.json(booking, { status: 201 });
+    return NextResponse.json(booking, { status: HTTP_STATUS.CREATED });
   } catch (error) {
     console.error("Error creating booking:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.errors }, { status: HTTP_STATUS.BAD_REQUEST });
     }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    );
   }
 }

@@ -3,9 +3,15 @@ import { BookingStatus, Prisma } from "@prisma/client";
 
 export class BookingService {
   /**
-   * Get bookings with optional filters
+   * Get bookings with optional filters and pagination
    */
-  static async getBookings(filters?: { userId?: string; status?: BookingStatus; role?: string }) {
+  static async getBookings(filters?: {
+    userId?: string;
+    status?: BookingStatus;
+    role?: string;
+    page?: number;
+    limit?: number;
+  }) {
     const where: Prisma.BookingWhereInput = {};
 
     // If student role, only show their bookings
@@ -21,7 +27,16 @@ export class BookingService {
       where.userId = filters.userId;
     }
 
-    return await prisma.booking.findMany({
+    // Pagination defaults
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await prisma.booking.count({ where });
+
+    // Get paginated bookings
+    const bookings = await prisma.booking.findMany({
       where,
       include: {
         user: {
@@ -39,7 +54,19 @@ export class BookingService {
       orderBy: {
         createdAt: "desc",
       },
+      skip,
+      take: limit,
     });
+
+    return {
+      bookings,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**

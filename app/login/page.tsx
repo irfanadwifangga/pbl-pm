@@ -67,6 +67,9 @@ export default function LoginPage() {
           fill
           className="object-cover animate-zoom-out blur-sm"
           priority
+          quality={75}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmQAAP/2Q=="
         />
         <div className="absolute inset-0 bg-black/50"></div>
       </div>
@@ -80,6 +83,8 @@ export default function LoginPage() {
               width={80}
               height={80}
               className="object-contain"
+              priority
+              quality={90}
             />
           </div>
           <CardTitle className="text-2xl font-bold text-center">

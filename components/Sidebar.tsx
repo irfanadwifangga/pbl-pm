@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   LayoutDashboard,
   Calendar,
@@ -19,7 +20,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { NotificationBell } from "@/components/NotificationBell";
+import { NotificationBellSkeleton } from "@/components/skeletons/NotificationBellSkeleton";
+
+// Lazy load NotificationBell component
+const NotificationBell = dynamic(
+  () => import("@/components/NotificationBell").then((mod) => ({ default: mod.NotificationBell })),
+  {
+    loading: () => <NotificationBellSkeleton />,
+    ssr: false,
+  }
+);
 
 interface NavItem {
   href: string;
@@ -51,6 +61,11 @@ export function Sidebar({ role, userName }: SidebarProps) {
         {
           href: "/dashboard/mahasiswa/booking",
           label: "Ajukan Peminjaman",
+          icon: <Calendar className="w-5 h-5" />,
+        },
+        {
+          href: "/dashboard/mahasiswa/kalender",
+          label: "Kalender Peminjaman",
           icon: <Calendar className="w-5 h-5" />,
         },
         {

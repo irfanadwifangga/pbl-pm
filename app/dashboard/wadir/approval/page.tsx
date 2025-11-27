@@ -1,7 +1,17 @@
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { BookingService } from "@/lib/services/booking.service";
-import { ApprovalPageClient } from "@/components/wadir/ApprovalPageClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load ApprovalPageClient
+const ApprovalPageClient = dynamic(
+  () =>
+    import("@/components/wadir/ApprovalPageClient").then((mod) => ({
+      default: mod.ApprovalPageClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export default async function ApprovalPage() {
   const session = await auth();
@@ -11,10 +21,12 @@ export default async function ApprovalPage() {
   }
 
   // Fetch validated bookings waiting for approval
-  const validatedBookings = await BookingService.getBookings({
+  const result = await BookingService.getBookings({
     status: "VALIDATED",
     role: session.user.role,
+    page: 1,
+    limit: 100, // Show all validated bookings
   });
 
-  return <ApprovalPageClient bookings={validatedBookings} />;
+  return <ApprovalPageClient bookings={result.bookings} />;
 }

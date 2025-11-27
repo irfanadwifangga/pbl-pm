@@ -7,6 +7,7 @@ import { bookingSchema } from "@/lib/validations/booking";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { CacheKeys, invalidateRelatedCaches } from "@/lib/cache";
 
 export async function createBookingAction(data: z.infer<typeof bookingSchema>) {
   try {
@@ -69,6 +70,14 @@ export async function createBookingAction(data: z.infer<typeof bookingSchema>) {
         room.name
       ).catch(console.error);
     }
+
+    // Invalidate caches
+    await invalidateRelatedCaches([
+      CacheKeys.userBookings(session.user.id),
+      CacheKeys.userStats(session.user.id),
+      CacheKeys.adminStats(),
+      CacheKeys.pendingBookings(),
+    ]);
 
     revalidatePath("/dashboard/mahasiswa");
 
@@ -173,6 +182,18 @@ export async function updateBookingStatusAction(
           notes
         ).catch(console.error);
       }
+    }
+
+    // Invalidate caches
+    if (bookingWithDetails) {
+      await invalidateRelatedCaches([
+        CacheKeys.userBookings(bookingWithDetails.userId),
+        CacheKeys.userStats(bookingWithDetails.userId),
+        CacheKeys.adminStats(),
+        CacheKeys.wadirStats(),
+        CacheKeys.pendingBookings(),
+        CacheKeys.bookingById(bookingId),
+      ]);
     }
 
     // Revalidate relevant paths

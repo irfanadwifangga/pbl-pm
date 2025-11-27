@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { InstallPWA } from "@/components/InstallPWA";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -82,6 +83,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#3b82f6",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -90,12 +98,12 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
       <body className={inter.className}>
         {children}
+        <InstallPWA />
         <Toaster position="top-right" />
       </body>
     </html>

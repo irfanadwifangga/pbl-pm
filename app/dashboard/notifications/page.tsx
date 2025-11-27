@@ -1,7 +1,17 @@
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { NotificationsPageClient } from "@/components/NotificationsPageClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load NotificationsPageClient
+const NotificationsPageClient = dynamic(
+  () =>
+    import("@/components/NotificationsPageClient").then((mod) => ({
+      default: mod.NotificationsPageClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export const metadata = {
   title: "Notifikasi | Dashboard",

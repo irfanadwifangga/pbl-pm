@@ -1,7 +1,17 @@
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { BookingService } from "@/lib/services/booking.service";
-import { WadirHistoryClient } from "@/components/wadir/WadirHistoryClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load WadirHistoryClient
+const WadirHistoryClient = dynamic(
+  () =>
+    import("@/components/wadir/WadirHistoryClient").then((mod) => ({
+      default: mod.WadirHistoryClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export default async function WadirHistoryPage() {
   const session = await auth();

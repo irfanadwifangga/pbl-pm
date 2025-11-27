@@ -1,7 +1,17 @@
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { BookingService } from "@/lib/services/booking.service";
-import { AdminHistoryClient } from "@/components/admin/AdminHistoryClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load AdminHistoryClient
+const AdminHistoryClient = dynamic(
+  () =>
+    import("@/components/admin/AdminHistoryClient").then((mod) => ({
+      default: mod.AdminHistoryClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export default async function AdminHistoryPage() {
   const session = await auth();

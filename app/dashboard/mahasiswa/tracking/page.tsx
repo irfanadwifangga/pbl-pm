@@ -1,7 +1,17 @@
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { BookingService } from "@/lib/services/booking.service";
-import { TrackingPageClient } from "@/components/mahasiswa/TrackingPageClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load TrackingPageClient
+const TrackingPageClient = dynamic(
+  () =>
+    import("@/components/mahasiswa/TrackingPageClient").then((mod) => ({
+      default: mod.TrackingPageClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export default async function TrackingPage() {
   const session = await auth();

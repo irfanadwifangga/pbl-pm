@@ -1,8 +1,18 @@
+import dynamic from "next/dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { BookingService } from "@/lib/services/booking.service";
 import { RoomService } from "@/lib/services/room.service";
-import { ValidationPageClient } from "@/components/admin/ValidationPageClient";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+// Lazy load ValidationPageClient
+const ValidationPageClient = dynamic(
+  () =>
+    import("@/components/admin/ValidationPageClient").then((mod) => ({
+      default: mod.ValidationPageClient,
+    })),
+  { loading: () => <DashboardSkeleton /> }
+);
 
 export default async function ValidationPage() {
   const session = await auth();

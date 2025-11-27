@@ -2,13 +2,17 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { BookingService } from "@/lib/services/booking.service";
 import { bookingSchema } from "@/lib/validations/booking";
+import { ERROR_MESSAGES, HTTP_STATUS } from "@/lib/constants/common";
 import { z } from "zod";
 
 export async function GET(request: Request) {
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: ERROR_MESSAGES.UNAUTHORIZED },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -24,7 +28,10 @@ export async function GET(request: Request) {
     return NextResponse.json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    );
   }
 }
 
@@ -32,7 +39,10 @@ export async function POST(request: Request) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "STUDENT") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: ERROR_MESSAGES.UNAUTHORIZED },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
 
     const body = await request.json();
@@ -44,8 +54,8 @@ export async function POST(request: Request) {
     // Validate time
     if (startTime >= endTime) {
       return NextResponse.json(
-        { error: "Waktu selesai harus lebih besar dari waktu mulai" },
-        { status: 400 }
+        { error: ERROR_MESSAGES.INVALID_TIME },
+        { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
 
@@ -58,8 +68,8 @@ export async function POST(request: Request) {
 
     if (!isAvailable) {
       return NextResponse.json(
-        { error: "Ruangan sudah dibooking pada waktu tersebut" },
-        { status: 400 }
+        { error: ERROR_MESSAGES.ROOM_UNAVAILABLE },
+        { status: HTTP_STATUS.BAD_REQUEST }
       );
     }
 
@@ -74,12 +84,15 @@ export async function POST(request: Request) {
       purpose: validatedData.purpose,
     });
 
-    return NextResponse.json(booking, { status: 201 });
+    return NextResponse.json(booking, { status: HTTP_STATUS.CREATED });
   } catch (error) {
     console.error("Error creating booking:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.errors }, { status: HTTP_STATUS.BAD_REQUEST });
     }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+    );
   }
 }

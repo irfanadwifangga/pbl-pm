@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface NavItem {
   href: string;
@@ -190,25 +191,36 @@ export function Sidebar({ role, userName }: SidebarProps) {
             </div>
             <h2 className="font-bold text-white">Peminjaman Ruangan</h2>
           </div>
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white">
-                <Menu className="w-6 h-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0 bg-slate-900 text-white border-slate-700">
-              <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-              <div className="flex flex-col h-full">
-                <SidebarContent />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white">
+                  <Menu className="w-6 h-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                className="w-64 p-0 bg-slate-900 text-white border-slate-700"
+              >
+                <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+                <div className="flex flex-col h-full">
+                  <SidebarContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex flex-col h-full bg-slate-900 text-white w-64">
         <SidebarContent />
+
+        {/* Desktop Notification Bell - Fixed at top right of sidebar */}
+        <div className="absolute top-6 right-4 z-10">
+          <NotificationBell />
+        </div>
       </div>
     </>
   );

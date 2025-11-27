@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
-import { Building2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,11 +58,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center relative p-4 overflow-hidden">
+      {/* Background Image with Blur and Zoom Out Animation */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/wp-login.jpg"
+          alt="Background"
+          fill
+          className="object-cover animate-zoom-out blur-sm"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+
+      <Card className="w-full max-w-md relative z-10 shadow-2xl">
         <CardHeader className="space-y-1 flex flex-col items-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-2">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-2 p-2 shadow-lg">
+            <Image
+              src="/logo-polinela.png"
+              alt="Logo Polinela"
+              width={80}
+              height={80}
+              className="object-contain"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
             Sistem Peminjaman Ruangan

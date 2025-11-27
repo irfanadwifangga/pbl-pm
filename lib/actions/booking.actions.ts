@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { BookingService } from "@/lib/services/booking.service";
+import { NotificationService } from "@/lib/services/notification.service";
 import { bookingSchema } from "@/lib/validations/booking";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -53,6 +54,21 @@ export async function createBookingAction(data: z.infer<typeof bookingSchema>) {
       participantCount: validatedData.participantCount,
       purpose: validatedData.purpose,
     });
+
+    // Get room name for notification
+    const room = await prisma.room.findUnique({
+      where: { id: validatedData.roomId },
+      select: { name: true },
+    });
+
+    // Notify admins about new booking
+    if (room) {
+      await NotificationService.notifyAdminNewBooking(
+        booking.id,
+        session.user.name || "Mahasiswa",
+        room.name
+      ).catch(console.error);
+    }
 
     revalidatePath("/dashboard/mahasiswa");
 
@@ -119,6 +135,45 @@ export async function updateBookingStatusAction(
       session.user.role,
       alternativeRoomId
     );
+
+    // Get booking details for notifications
+    const bookingWithDetails = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        user: { select: { fullName: true } },
+        room: { select: { name: true } },
+        alternativeRoom: { select: { name: true } },
+      },
+    });
+
+    if (bookingWithDetails) {
+      const roomName = bookingWithDetails.alternativeRoom?.name || bookingWithDetails.room.name;
+
+      // Send appropriate notification based on status
+      if (status === "VALIDATED") {
+        // Notify Wadir that booking needs approval
+        await NotificationService.notifyWadirBookingValidated(
+          bookingId,
+          bookingWithDetails.user.fullName,
+          roomName
+        ).catch(console.error);
+      } else if (status === "APPROVED") {
+        // Notify student that booking is approved
+        await NotificationService.notifyStudentBookingApproved(
+          bookingWithDetails.userId,
+          bookingId,
+          roomName
+        ).catch(console.error);
+      } else if (status === "REJECTED") {
+        // Notify student that booking is rejected
+        await NotificationService.notifyStudentBookingRejected(
+          bookingWithDetails.userId,
+          bookingId,
+          roomName,
+          notes
+        ).catch(console.error);
+      }
+    }
 
     // Revalidate relevant paths
     revalidatePath("/dashboard/admin");

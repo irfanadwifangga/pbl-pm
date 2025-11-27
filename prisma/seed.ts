@@ -7,6 +7,7 @@ async function main() {
   console.log("🌱 Starting comprehensive seed...");
 
   // Clear existing data
+  await prisma.notification.deleteMany();
   await prisma.memo.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.room.deleteMany();
@@ -15,246 +16,301 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash("password123", 10);
 
-  // Create 20 students
-  console.log("👥 Creating 20 students...");
+  // Create 20 students with Indonesian names
+  console.log("👥 Creating 20 students with unique names...");
+  const studentNames = [
+    "Ahmad Fadli Rahman",
+    "Siti Nurhaliza",
+    "Budi Santoso",
+    "Dewi Lestari",
+    "Eko Prasetyo",
+    "Fitri Handayani",
+    "Galih Wicaksono",
+    "Hana Pratiwi",
+    "Irfan Maulana",
+    "Joko Widodo",
+    "Kartika Sari",
+    "Lukman Hakim",
+    "Maya Angelina",
+    "Nanda Pratama",
+    "Oktavia Putri",
+    "Putra Mahardika",
+    "Qori Syarifah",
+    "Reza Pahlevi",
+    "Sari Indah",
+    "Taufik Hidayat",
+  ];
+
   const students = [];
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 0; i < 20; i++) {
     const student = await prisma.user.create({
       data: {
-        fullName: `Mahasiswa ${i}`,
-        email: `mahasiswa${i}@kampus.ac.id`,
+        fullName: studentNames[i],
+        email: `mahasiswa${i + 1}@kampus.ac.id`,
         password: hashedPassword,
         role: "STUDENT",
-        studentId: `2021${String(i).padStart(3, "0")}`,
-        phone: `0812345678${String(i).padStart(2, "0")}`,
+        studentId: `2021${String(i + 1).padStart(3, "0")}`,
+        phone: `0812345678${String(i + 1).padStart(2, "0")}`,
       },
     });
     students.push(student);
   }
-  console.log("✅ 20 Students created");
+  console.log("✅ 20 Students created with unique names");
 
   // Create admin and wadir
   const admin = await prisma.user.create({
     data: {
-      fullName: "Admin Fakultas",
+      fullName: "Admin Bagian Umum",
       email: "admin@kampus.ac.id",
       password: hashedPassword,
       role: "ADMIN",
-      phone: "081234567891",
+      phone: "081234567800",
     },
   });
 
   const wadir = await prisma.user.create({
     data: {
-      fullName: "Dr. Wadir III",
+      fullName: "Dr. Bambang Wijaya, M.Si.",
       email: "wadir3@kampus.ac.id",
       password: hashedPassword,
       role: "WADIR3",
-      phone: "081234567892",
+      phone: "081234567899",
     },
   });
-  console.log("✅ Admin and Wadir created");
+  console.log("✅ Admin and Wadir III created");
 
-  // Create 5 buildings with 3 rooms each (15 rooms total)
-  console.log("🏢 Creating 5 buildings with 3 rooms each...");
-  const buildings = ["Gedung A", "Gedung B", "Gedung C", "Gedung D", "Gedung E"];
-  const roomTypes = ["Ruang Seminar", "Ruang Kuliah", "Laboratorium"];
+  // Create 5 buildings with 5 rooms each (25 rooms total)
+  console.log("🏢 Creating 5 buildings with 5 rooms each...");
+  const buildings = [
+    { name: "Gedung Utama", code: "A" },
+    { name: "Gedung Teknik", code: "B" },
+    { name: "Gedung Sains", code: "C" },
+    { name: "Gedung Ekonomi", code: "D" },
+    { name: "Gedung Sosial", code: "E" },
+  ];
+
+  const roomTypes = [
+    {
+      name: "Ruang Kuliah",
+      capacity: 50,
+      facilities: ["Proyektor", "AC", "Whiteboard", "Wifi", "Sound System"],
+    },
+    {
+      name: "Ruang Seminar",
+      capacity: 80,
+      facilities: ["Proyektor", "AC", "Whiteboard", "Wifi", "Sound System", "Podium"],
+    },
+    {
+      name: "Laboratorium Komputer",
+      capacity: 40,
+      facilities: ["Komputer", "AC", "Whiteboard", "Wifi", "Printer"],
+    },
+    {
+      name: "Ruang Rapat",
+      capacity: 30,
+      facilities: ["Proyektor", "AC", "Whiteboard", "Wifi", "Meja Bundar"],
+    },
+    {
+      name: "Aula",
+      capacity: 200,
+      facilities: ["Sound System", "AC", "Panggung", "Wifi", "Proyektor", "Kursi Theater"],
+    },
+  ];
+
   const allRooms = [];
 
-  for (let i = 0; i < buildings.length; i++) {
-    const building = buildings[i];
-    for (let j = 0; j < 3; j++) {
+  for (const building of buildings) {
+    for (let j = 0; j < 5; j++) {
+      const roomType = roomTypes[j];
       const room = await prisma.room.create({
         data: {
-          name: `${roomTypes[j]} ${building} ${j + 1}`,
-          building: building,
-          floor: (j % 3) + 1,
-          capacity: [50, 40, 30][j],
-          facilities: ["Proyektor", "AC", "Whiteboard", "Wifi"],
+          name: `${roomType.name} ${building.code}.${j + 1}`,
+          building: building.name,
+          floor: Math.floor(j / 2) + 1, // Floor 1-3
+          capacity: roomType.capacity,
+          facilities: roomType.facilities,
           isAvailable: true,
         },
       });
       allRooms.push(room);
     }
   }
-  console.log("✅ 15 Rooms created (5 buildings × 3 rooms)");
+  console.log("✅ 25 Rooms created (5 buildings × 5 rooms)");
 
   // Create bookings with various statuses for testing
   console.log("📅 Creating test bookings...");
-  
+
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   const nextWeek = new Date(today);
   nextWeek.setDate(nextWeek.getDate() + 7);
 
-  // VALIDATED and APPROVED bookings (rooms in use) - Same date as test scenario
-  // Booking 1: Room occupied in morning
+  // APPROVED bookings
   await prisma.booking.create({
     data: {
       userId: students[0].id,
-      roomId: allRooms[0].id, // Ruang Seminar Gedung A 1
+      roomId: allRooms[0].id,
       startTime: new Date(tomorrow.setHours(8, 0, 0, 0)),
       endTime: new Date(tomorrow.setHours(12, 0, 0, 0)),
       eventName: "Workshop Pemrograman Web",
-      purpose: "Pelatihan teknis",
+      purpose: "Pelatihan teknis untuk mahasiswa semester 5",
       participantCount: 45,
       status: "APPROVED",
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      approvedById: wadir.id,
+      approvedAt: new Date(),
     },
   });
 
-  // Booking 2: Room occupied in afternoon
   await prisma.booking.create({
     data: {
       userId: students[1].id,
-      roomId: allRooms[1].id, // Ruang Kuliah Gedung A 2
+      roomId: allRooms[6].id,
       startTime: new Date(tomorrow.setHours(13, 0, 0, 0)),
       endTime: new Date(tomorrow.setHours(16, 0, 0, 0)),
-      eventName: "Seminar Nasional",
-      purpose: "Presentasi penelitian",
-      participantCount: 38,
+      eventName: "Seminar Nasional Teknologi",
+      purpose: "Presentasi penelitian dosen dan mahasiswa",
+      participantCount: 75,
       status: "APPROVED",
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      approvedById: wadir.id,
+      approvedAt: new Date(),
     },
   });
 
-  // Booking 3: Room validated (waiting for wadir approval)
   await prisma.booking.create({
     data: {
       userId: students[2].id,
-      roomId: allRooms[2].id, // Laboratorium Gedung A 3
+      roomId: allRooms[12].id,
       startTime: new Date(tomorrow.setHours(9, 0, 0, 0)),
       endTime: new Date(tomorrow.setHours(11, 0, 0, 0)),
-      eventName: "Praktikum Jaringan",
-      purpose: "Praktik lab",
-      participantCount: 28,
-      status: "VALIDATED",
+      eventName: "Praktikum Jaringan Komputer",
+      purpose: "Praktik konfigurasi router dan switch",
+      participantCount: 35,
+      status: "APPROVED",
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      approvedById: wadir.id,
+      approvedAt: new Date(),
     },
   });
 
-  // Booking 4: Another occupied room (Gedung B)
+  // VALIDATED bookings (waiting for wadir approval)
   await prisma.booking.create({
     data: {
       userId: students[3].id,
-      roomId: allRooms[3].id, // Ruang Seminar Gedung B 1
-      startTime: new Date(tomorrow.setHours(8, 0, 0, 0)),
-      endTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
-      eventName: "Rapat Organisasi",
-      purpose: "Koordinasi kegiatan",
-      participantCount: 25,
-      status: "APPROVED",
+      roomId: allRooms[5].id,
+      startTime: new Date(tomorrow.setHours(14, 0, 0, 0)),
+      endTime: new Date(tomorrow.setHours(17, 0, 0, 0)),
+      eventName: "Rapat Koordinasi BEM",
+      purpose: "Pembahasan agenda kegiatan bulan depan",
+      participantCount: 28,
+      status: "VALIDATED",
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      adminNotes: "Sudah divalidasi, menunggu approval Wadir",
     },
   });
 
-  // Booking 5: Occupied room in Gedung C
   await prisma.booking.create({
     data: {
       userId: students[4].id,
-      roomId: allRooms[6].id, // Ruang Seminar Gedung C 1
-      startTime: new Date(tomorrow.setHours(8, 0, 0, 0)),
-      endTime: new Date(tomorrow.setHours(12, 0, 0, 0)),
+      roomId: allRooms[10].id,
+      startTime: new Date(nextWeek.setHours(10, 0, 0, 0)),
+      endTime: new Date(nextWeek.setHours(12, 0, 0, 0)),
       eventName: "Training Leadership",
-      purpose: "Pengembangan soft skill",
-      participantCount: 48,
-      status: "APPROVED",
+      purpose: "Pelatihan kepemimpinan untuk ketua organisasi",
+      participantCount: 50,
+      status: "VALIDATED",
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      adminNotes: "Proposal lengkap, menunggu approval",
     },
   });
 
-  // PENDING bookings for admin to validate (with conflict scenarios)
-  const tomorrowMorning = new Date(tomorrow);
-  tomorrowMorning.setHours(9, 0, 0, 0);
-  const tomorrowNoon = new Date(tomorrow);
-  tomorrowNoon.setHours(12, 0, 0, 0);
-
-  // Pending booking 1: Request for already occupied room (should suggest alternative)
+  // PENDING bookings (for admin to validate)
   await prisma.booking.create({
     data: {
       userId: students[5].id,
-      roomId: allRooms[0].id, // Same as approved booking (Gedung A)
-      startTime: new Date(tomorrowMorning),
-      endTime: new Date(tomorrowNoon),
+      roomId: allRooms[15].id,
+      startTime: new Date(tomorrow.setHours(8, 0, 0, 0)),
+      endTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
       eventName: "Diskusi Kelompok Tugas Akhir",
-      purpose: "Diskusi TA",
+      purpose: "Diskusi progress penelitian kelompok",
+      participantCount: 20,
+      status: "PENDING",
+    },
+  });
+
+  await prisma.booking.create({
+    data: {
+      userId: students[6].id,
+      roomId: allRooms[20].id,
+      startTime: new Date(nextWeek.setHours(13, 0, 0, 0)),
+      endTime: new Date(nextWeek.setHours(15, 0, 0, 0)),
+      eventName: "Lomba Debat Bahasa Inggris",
+      purpose: "Kompetisi debat tingkat fakultas",
       participantCount: 40,
       status: "PENDING",
     },
   });
 
-  // Pending booking 2: Request for another occupied room
-  await prisma.booking.create({
-    data: {
-      userId: students[6].id,
-      roomId: allRooms[1].id, // Occupied in afternoon
-      startTime: new Date(tomorrow.setHours(14, 0, 0, 0)),
-      endTime: new Date(tomorrow.setHours(16, 0, 0, 0)),
-      eventName: "Lomba Debat",
-      purpose: "Kompetisi mahasiswa",
-      participantCount: 35,
-      status: "PENDING",
-    },
-  });
-
-  // Pending booking 3: Free room (should be validated easily)
   await prisma.booking.create({
     data: {
       userId: students[7].id,
-      roomId: allRooms[10].id, // Gedung D - should be free
-      startTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
-      endTime: new Date(tomorrow.setHours(12, 0, 0, 0)),
-      eventName: "Pertemuan Himpunan",
-      purpose: "Rapat internal",
-      participantCount: 30,
+      roomId: allRooms[24].id,
+      startTime: new Date(nextWeek.setHours(8, 0, 0, 0)),
+      endTime: new Date(nextWeek.setHours(12, 0, 0, 0)),
+      eventName: "Pentas Seni Mahasiswa",
+      purpose: "Pertunjukan seni dan budaya",
+      participantCount: 180,
       status: "PENDING",
     },
   });
 
-  // Pending booking 4: Another conflict
+  // REJECTED booking
   await prisma.booking.create({
     data: {
       userId: students[8].id,
-      roomId: allRooms[3].id, // Occupied by Rapat Organisasi
-      startTime: new Date(tomorrow.setHours(9, 0, 0, 0)),
-      endTime: new Date(tomorrow.setHours(11, 0, 0, 0)),
-      eventName: "Kelas Tambahan",
-      purpose: "Remedial",
-      participantCount: 22,
-      status: "PENDING",
-    },
-  });
-
-  // Some REJECTED bookings with alternative suggestions
-  await prisma.booking.create({
-    data: {
-      userId: students[9].id,
-      roomId: allRooms[5].id,
-      startTime: new Date(today.setHours(14, 0, 0, 0)),
-      endTime: new Date(today.setHours(16, 0, 0, 0)),
+      roomId: allRooms[0].id,
+      startTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
+      endTime: new Date(tomorrow.setHours(12, 0, 0, 0)),
       eventName: "Workshop AI",
       purpose: "Belajar machine learning",
       participantCount: 45,
       status: "REJECTED",
-      adminNotes: "Ruangan sudah dipakai, silakan coba ruangan alternatif",
-      alternativeRoomId: allRooms[11].id, // Suggest Gedung D room
+      validatedById: admin.id,
+      validatedAt: new Date(),
+      adminNotes: "Ruangan sudah dipakai pada waktu tersebut",
+      alternativeRoomId: allRooms[1].id,
     },
   });
 
   console.log("✅ Test bookings created:");
-  console.log("   - 5 APPROVED bookings (rooms in use)");
-  console.log("   - 1 VALIDATED booking (waiting for wadir)");
-  console.log("   - 4 PENDING bookings (for admin to validate)");
-  console.log("   - 1 REJECTED booking (with alternative suggestion)");
+  console.log("   - 3 APPROVED bookings");
+  console.log("   - 2 VALIDATED bookings (waiting for wadir)");
+  console.log("   - 3 PENDING bookings (for admin to validate)");
+  console.log("   - 1 REJECTED booking (with alternative)");
 
   console.log("\n🎉 Comprehensive seed completed!");
   console.log("\n📋 Summary:");
   console.log(`   - Users: 22 (20 students + 1 admin + 1 wadir)`);
-  console.log(`   - Buildings: 5 (Gedung A-E)`);
-  console.log(`   - Rooms: 15 (3 rooms per building)`);
-  console.log(`   - Bookings: 11 (various statuses for testing)`);
+  console.log(`   - Buildings: 5 (Gedung Utama, Teknik, Sains, Ekonomi, Sosial)`);
+  console.log(`   - Rooms: 25 (5 types × 5 buildings)`);
+  console.log(`   - Bookings: 9 (various statuses for testing)`);
   console.log("\n🔑 Login credentials:");
   console.log("   - Students: mahasiswa1@kampus.ac.id - mahasiswa20@kampus.ac.id");
   console.log("   - Admin: admin@kampus.ac.id");
-  console.log("   - Wadir: wadir3@kampus.ac.id");
+  console.log("   - Wadir III: wadir3@kampus.ac.id");
   console.log("   - Password (all): password123");
+  console.log("\n👥 Student names:");
+  studentNames.forEach((name, i) => {
+    console.log(`   ${i + 1}. ${name}`);
+  });
 }
 
 main()

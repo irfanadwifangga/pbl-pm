@@ -20,11 +20,15 @@ export default async function HistoryPage() {
     redirect("/login");
   }
 
-  // Fetch all bookings for this student
-  const bookings = await BookingService.getBookings({
+  // Fetch bookings with pagination (first page)
+  const result = await BookingService.getBookings({
     userId: session.user.id,
     role: session.user.role,
+    page: 1,
+    limit: 10,
   });
 
-  return <HistoryPageClient bookings={bookings} />;
+  return (
+    <HistoryPageClient initialBookings={result.bookings} initialPagination={result.pagination} />
+  );
 }

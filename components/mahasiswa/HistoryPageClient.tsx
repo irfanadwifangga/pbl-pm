@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,22 +12,78 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { StatusBadge } from "@/components/StatusBadge";
 import { BookingWithRelations } from "@/types";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
-import { Calendar, Clock, Building, Users, FileText, Search, X, ChevronRight } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Building,
+  Users,
+  FileText,
+  Search,
+  X,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 
 interface HistoryPageClientProps {
-  bookings: BookingWithRelations[];
+  initialBookings: BookingWithRelations[];
+  initialPagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
-export function HistoryPageClient({ bookings }: HistoryPageClientProps) {
+export function HistoryPageClient({ initialBookings, initialPagination }: HistoryPageClientProps) {
+  const [bookings, setBookings] = useState<BookingWithRelations[]>(initialBookings);
+  const [pagination, setPagination] = useState(initialPagination);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedBooking, setSelectedBooking] = useState<BookingWithRelations | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter bookings
+  // Fetch bookings when page or filters change
+  useEffect(() => {
+    const fetchBookings = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: "10",
+        });
+        if (statusFilter !== "ALL") {
+          params.append("status", statusFilter);
+        }
+
+        const response = await fetch(`/api/booking?${params}`);
+        const data = await response.json();
+        setBookings(data.bookings);
+        setPagination(data.pagination);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [currentPage, statusFilter]);
+
+  // Filter bookings by search term (client-side)
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
@@ -36,26 +92,60 @@ export function HistoryPageClient({ bookings }: HistoryPageClientProps) {
         booking.room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.purpose.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === "ALL" || booking.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
+      return matchesSearch;
     });
-  }, [bookings, searchTerm, statusFilter]);
+  }, [bookings, searchTerm]);
 
-  // Statistics
+  // Statistics (from all bookings, not just current page)
   const stats = useMemo(() => {
     return {
-      total: bookings.length,
+      total: pagination.total,
       pending: bookings.filter((b) => b.status === "PENDING").length,
       validated: bookings.filter((b) => b.status === "VALIDATED").length,
       approved: bookings.filter((b) => b.status === "APPROVED").length,
       rejected: bookings.filter((b) => b.status === "REJECTED").length,
     };
-  }, [bookings]);
+  }, [bookings, pagination.total]);
 
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter("ALL");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedBooking(null); // Clear selection when changing pages
+  };
+
+  // Generate page numbers
+  const getPageNumbers = () => {
+    const pages = [];
+    const { totalPages } = pagination;
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
   };
 
   return (
@@ -148,56 +238,124 @@ export function HistoryPageClient({ bookings }: HistoryPageClientProps) {
               </div>
             </CardHeader>
             <CardContent>
-              {filteredBookings.length === 0 ? (
+              {isLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : filteredBookings.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <FileText className="mx-auto h-12 w-12 mb-4 opacity-50" />
                   <p>Tidak ada riwayat peminjaman</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {filteredBookings.map((booking) => (
-                    <Card
-                      key={booking.id}
-                      className={`cursor-pointer transition-all hover:shadow-md ${
-                        selectedBooking?.id === booking.id ? "ring-2 ring-primary" : ""
-                      }`}
-                      onClick={() => setSelectedBooking(booking)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{booking.eventName}</h3>
-                              <StatusBadge status={booking.status} />
+                <>
+                  <div className="space-y-3">
+                    {filteredBookings.map((booking) => (
+                      <Card
+                        key={booking.id}
+                        className={`cursor-pointer transition-all hover:shadow-md ${
+                          selectedBooking?.id === booking.id ? "ring-2 ring-primary" : ""
+                        }`}
+                        onClick={() => setSelectedBooking(booking)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-semibold">{booking.eventName}</h3>
+                                <StatusBadge status={booking.status} />
+                              </div>
+                              <div className="space-y-1 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                  <Building className="h-4 w-4" />
+                                  <span>{booking.room.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4" />
+                                  <span>
+                                    {format(new Date(booking.startTime), "dd MMMM yyyy", {
+                                      locale: localeId,
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4" />
+                                  <span>
+                                    {format(new Date(booking.startTime), "HH:mm")} -{" "}
+                                    {format(new Date(booking.endTime), "HH:mm")}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="space-y-1 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-2">
-                                <Building className="h-4 w-4" />
-                                <span>{booking.room.name}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                <span>
-                                  {format(new Date(booking.startTime), "dd MMMM yyyy", {
-                                    locale: localeId,
-                                  })}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                <span>
-                                  {format(new Date(booking.startTime), "HH:mm")} -{" "}
-                                  {format(new Date(booking.endTime), "HH:mm")}
-                                </span>
-                              </div>
-                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
                           </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {pagination.totalPages > 1 && (
+                    <div className="mt-6 flex items-center justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        Menampilkan {(currentPage - 1) * pagination.limit + 1} -{" "}
+                        {Math.min(currentPage * pagination.limit, pagination.total)} dari{" "}
+                        {pagination.total} peminjaman
+                      </div>
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage > 1) handlePageChange(currentPage - 1);
+                              }}
+                              className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                          </PaginationItem>
+
+                          {getPageNumbers().map((page, index) =>
+                            page === "ellipsis" ? (
+                              <PaginationItem key={`ellipsis-${index}`}>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page as number);
+                                  }}
+                                  isActive={currentPage === page}
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            )
+                          )}
+
+                          <PaginationItem>
+                            <PaginationNext
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < pagination.totalPages)
+                                  handlePageChange(currentPage + 1);
+                              }}
+                              className={
+                                currentPage === pagination.totalPages
+                                  ? "pointer-events-none opacity-50"
+                                  : ""
+                              }
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

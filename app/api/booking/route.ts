@@ -32,14 +32,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as any;
     const userId = searchParams.get("userId");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
-    const bookings = await BookingService.getBookings({
+    const result = await BookingService.getBookings({
       userId: userId || session.user.id,
       status,
       role: session.user.role,
+      page,
+      limit,
     });
 
-    return NextResponse.json(bookings);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching bookings:", error);
     return NextResponse.json(

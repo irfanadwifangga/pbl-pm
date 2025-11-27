@@ -21,13 +21,15 @@ export default async function TrackingPage() {
   }
 
   // Fetch all bookings for tracking
-  const bookings = await BookingService.getBookings({
+  const result = await BookingService.getBookings({
     userId: session.user.id,
     role: session.user.role,
+    page: 1,
+    limit: 100,
   });
 
   // Filter only active bookings (not completed/old)
-  const activeBookings = bookings.filter(
+  const activeBookings = result.bookings.filter(
     (booking) =>
       booking.status !== "REJECTED" ||
       new Date(booking.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)

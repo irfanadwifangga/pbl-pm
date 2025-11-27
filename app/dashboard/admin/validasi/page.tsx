@@ -22,13 +22,15 @@ export default async function ValidationPage() {
   }
 
   // Fetch pending bookings and available rooms
-  const [pendingBookings, availableRooms] = await Promise.all([
+  const [result, availableRooms] = await Promise.all([
     BookingService.getBookings({
       status: "PENDING",
       role: session.user.role,
+      page: 1,
+      limit: 100, // Show all pending bookings for validation
     }),
     RoomService.getAvailableRooms(),
   ]);
 
-  return <ValidationPageClient bookings={pendingBookings} availableRooms={availableRooms} />;
+  return <ValidationPageClient bookings={result.bookings} availableRooms={availableRooms} />;
 }

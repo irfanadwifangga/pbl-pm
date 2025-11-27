@@ -20,13 +20,15 @@ export default async function AdminHistoryPage() {
     redirect("/login");
   }
 
-  // Fetch bookings that have been validated or rejected by admin
-  const bookings = await BookingService.getBookings({
+  // Fetch bookings with pagination (first page)
+  const result = await BookingService.getBookings({
     role: session.user.role,
+    page: 1,
+    limit: 10,
   });
 
   // Filter to show only validated and rejected bookings (processed by admin)
-  const processedBookings = bookings.filter(
+  const processedBookings = result.bookings.filter(
     (booking) =>
       booking.status === "VALIDATED" ||
       booking.status === "REJECTED" ||

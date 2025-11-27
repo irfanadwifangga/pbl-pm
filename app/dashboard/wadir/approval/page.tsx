@@ -21,10 +21,12 @@ export default async function ApprovalPage() {
   }
 
   // Fetch validated bookings waiting for approval
-  const validatedBookings = await BookingService.getBookings({
+  const result = await BookingService.getBookings({
     status: "VALIDATED",
     role: session.user.role,
+    page: 1,
+    limit: 100, // Show all validated bookings
   });
 
-  return <ApprovalPageClient bookings={validatedBookings} />;
+  return <ApprovalPageClient bookings={result.bookings} />;
 }

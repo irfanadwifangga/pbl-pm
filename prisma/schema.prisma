@@ -37,6 +37,9 @@ model Room {
     alternativeBookings Booking[] @relation("AlternativeRoom")
     createdAt           DateTime  @default(now())
     updatedAt           DateTime  @updatedAt
+
+    @@index([building, isAvailable])
+    @@index([capacity])
 }
 
 model Booking {
@@ -69,6 +72,9 @@ model Booking {
     @@index([userId])
     @@index([roomId])
     @@index([status])
+    @@index([userId, status])
+    @@index([roomId, startTime])
+    @@index([status, createdAt])
 }
 
 model Memo {

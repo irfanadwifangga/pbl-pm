@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { bookingSchema } from "@/lib/validations/booking";
 import { useBookingForm } from "@/hooks/useBookingForm";
 import { RoomOption, BookingFormData } from "@/types";
+import { ConflictDetection } from "@/components/ConflictDetection";
 
 interface BookingFormProps {
   rooms: RoomOption[];
@@ -31,6 +32,7 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
   const { loading, submitBooking } = useBookingForm();
   const [startDateTime, setStartDateTime] = useState<Date | undefined>();
   const [endDateTime, setEndDateTime] = useState<Date | undefined>();
+  const [selectedRoom, setSelectedRoom] = useState<string>("");
 
   const {
     register,
@@ -50,6 +52,7 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
   useEffect(() => {
     if (defaultRoomId) {
       setValue("roomId", defaultRoomId);
+      setSelectedRoom(defaultRoomId);
     }
   }, [defaultRoomId, setValue]);
 
@@ -101,7 +104,13 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
           control={control}
           name="roomId"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+                setSelectedRoom(value);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Pilih Ruangan" />
               </SelectTrigger>
@@ -153,6 +162,11 @@ export function BookingForm({ rooms, selectedRoomId, defaultRoomId }: BookingFor
           {errors.endTime && <p className="text-sm text-red-500">{errors.endTime.message}</p>}
         </div>
       </div>
+
+      {/* Conflict Detection */}
+      {selectedRoom && startDateTime && endDateTime && (
+        <ConflictDetection roomId={selectedRoom} startTime={startDateTime} endTime={endDateTime} />
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="eventName">Nama Acara *</Label>

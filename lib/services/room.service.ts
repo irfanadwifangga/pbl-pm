@@ -1,45 +1,70 @@
 import { prisma } from "@/lib/prisma";
+import { CacheKeys, CacheTTL, cacheOrFetch } from "@/lib/cache";
 
 export class RoomService {
   /**
-   * Get all available rooms
+   * Get all available rooms (with cache)
    */
   static async getAvailableRooms() {
-    return await prisma.room.findMany({
-      where: { isAvailable: true },
-      orderBy: { building: "asc" },
-    });
+    return cacheOrFetch(
+      CacheKeys.availableRooms(),
+      async () => {
+        return await prisma.room.findMany({
+          where: { isAvailable: true },
+          orderBy: { building: "asc" },
+        });
+      },
+      CacheTTL.ROOMS
+    );
   }
 
   /**
-   * Get room by ID
+   * Get room by ID (with cache)
    */
   static async getRoomById(roomId: string) {
-    return await prisma.room.findUnique({
-      where: { id: roomId },
-    });
+    return cacheOrFetch(
+      CacheKeys.roomById(roomId),
+      async () => {
+        return await prisma.room.findUnique({
+          where: { id: roomId },
+        });
+      },
+      CacheTTL.ROOMS
+    );
   }
 
   /**
-   * Get all rooms with booking count
+   * Get all rooms with booking count (with cache)
    */
   static async getAllRoomsWithStats() {
-    return await prisma.room.findMany({
-      include: {
-        bookings: {
-          where: {
-            status: { not: "REJECTED" },
+    return cacheOrFetch(
+      CacheKeys.allRooms(),
+      async () => {
+        return await prisma.room.findMany({
+          include: {
+            bookings: {
+              where: {
+                status: { not: "REJECTED" },
+              },
+            },
           },
-        },
+          orderBy: { building: "asc" },
+        });
       },
-      orderBy: { building: "asc" },
-    });
+      CacheTTL.ROOMS
+    );
   }
 
   /**
-   * Get total room count
+   * Get total room count (with cache)
    */
   static async getRoomCount() {
-    return await prisma.room.count();
+    return cacheOrFetch(
+      "rooms:count",
+      async () => {
+        return await prisma.room.count();
+      },
+      CacheTTL.LONG
+    );
   }
 }

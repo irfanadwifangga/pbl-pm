@@ -1,11 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { BookingService } from "@/lib/services/booking.service";
 import { bookingSchema } from "@/lib/validations/booking";
 import { ERROR_MESSAGES, HTTP_STATUS } from "@/lib/constants/common";
 import { z } from "zod";
+import {
+  getApiRateLimiter,
+  getWriteRateLimiter,
+  rateLimit,
+  getRateLimitIdentifier,
+} from "@/lib/middleware/rateLimit";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session) {
@@ -14,6 +20,14 @@ export async function GET(request: Request) {
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
+
+    // Rate limiting
+    const rateLimitResponse = await rateLimit(
+      request,
+      getApiRateLimiter(),
+      getRateLimitIdentifier(request, session.user.id)
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as any;
@@ -35,7 +49,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "STUDENT") {
@@ -44,6 +58,14 @@ export async function POST(request: Request) {
         { status: HTTP_STATUS.UNAUTHORIZED }
       );
     }
+
+    // Rate limiting for write operations
+    const rateLimitResponse = await rateLimit(
+      request,
+      getWriteRateLimiter(),
+      getRateLimitIdentifier(request, session.user.id)
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     const body = await request.json();
     const validatedData = bookingSchema.parse(body);

@@ -64,6 +64,11 @@ export function Sidebar({ role, userName }: SidebarProps) {
           icon: <Calendar className="w-5 h-5" />,
         },
         {
+          href: "/dashboard/mahasiswa/kalender",
+          label: "Kalender Peminjaman",
+          icon: <Calendar className="w-5 h-5" />,
+        },
+        {
           href: "/dashboard/mahasiswa/tracking",
           label: "Tracking Peminjaman",
           icon: <TrendingUp className="w-5 h-5" />,
